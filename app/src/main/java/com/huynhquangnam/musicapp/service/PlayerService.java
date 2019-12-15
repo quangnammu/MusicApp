@@ -1,13 +1,19 @@
 package com.huynhquangnam.musicapp.service;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
+import java.io.File;
 import java.io.IOException;
 
 public class PlayerService extends Service {
@@ -17,6 +23,7 @@ public class PlayerService extends Service {
     MediaPlayer mediaPlayer;
     String url;
     String name;
+    UpdateTimerRunnable updateTimerRunnable;
 
     public PlayerService() {
     }
@@ -31,7 +38,99 @@ public class PlayerService extends Service {
         url = intent.getStringExtra("songURL");
         name = intent.getStringExtra("songName");
         playAudio();
+
+        IntentFilter filter = new IntentFilter("changeStatusMedia");
+        filter.addAction("seekChange");
+        LocalBroadcastManager.getInstance(this).registerReceiver(receiver(), filter);
+
         return super.onStartCommand(intent, flags, startId);
+    }
+
+    private BroadcastReceiver receiver() {
+        return new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                switch (intent.getAction()) {
+                    case "changeStatusMedia":
+                        if (mediaPlayer.isPlaying()) {
+                            mediaPlayer.pause();
+                            updateTimerRunnable.onPause();
+                        } else {
+                            mediaPlayer.start();
+                            updateTimerRunnable.onResume();
+                        }
+                        break;
+                    case "seekChange":
+                        int currentPosition = intent.getIntExtra("currentPosition", 0);
+                        mediaPlayer.seekTo(currentPosition * mediaPlayer.getDuration() / 100);
+                }
+            }
+        };
+    }
+
+    private void sendDurationToActivity(int duration) {
+        Intent intent = new Intent("sendDuration");
+        intent.putExtra("duration", duration);
+
+        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+    }
+
+    private void sendProgressToActivity(int progress, int currentPosition) {
+        Intent intent = new Intent("sendProgress");
+        intent.putExtra("progress", progress);
+        intent.putExtra("currentPosition", currentPosition);
+
+        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+    }
+
+    class UpdateTimerRunnable implements Runnable {
+
+        private Object pauseLock;
+        private boolean isPause;
+
+        public UpdateTimerRunnable() {
+            isPause = false;
+            pauseLock = new Object();
+        }
+
+        @Override
+        public void run() {
+            while (mediaPlayer.isPlaying()) {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                sendProgressToActivity(mediaPlayer.getCurrentPosition() * 100 / mediaPlayer.getCurrentPosition(), mediaPlayer.getCurrentPosition());
+                synchronized (pauseLock) {
+                    while (isPause) {
+                        try {
+                            pauseLock.wait();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        }
+
+        public void onPause() {
+            synchronized (pauseLock) {
+                isPause = true;
+            }
+        }
+
+        public void onResume() {
+            synchronized (pauseLock) {
+                isPause = false;
+                pauseLock.notifyAll();
+            }
+        }
+    }
+
+    private void createUpdateTimer() {
+        updateTimerRunnable = new UpdateTimerRunnable();
+        new Thread(updateTimerRunnable).start();
     }
 
     private void playAudio() {
@@ -41,14 +140,59 @@ public class PlayerService extends Service {
                 public void run() {
                     Looper.prepare();
                     h = new Handler();
-                    h.post(playAudioFromUrl());
+                    File f = new File(url);
+                    if (f.exists() && f.isFile()) {
+                        h.post(playAudioFromFile());
+                    } else {
+                        h.post(playAudioFromUrl());
+                    }
                     Looper.loop();
                 }
             });
             t.start();
         } else {
-            h.post(playAudioFromUrl());
+            File f = new File(url);
+            if (f.exists() && f.isFile()) {
+                h.post(playAudioFromFile());
+            } else {
+                h.post(playAudioFromUrl());
+            }
         }
+
+    }
+
+    private Runnable playAudioFromFile() {
+        return new Runnable() {
+            @Override
+            public void run() {
+                if (mediaPlayer != null) {
+                    mediaPlayer.release();
+                }
+                mediaPlayer = new MediaPlayer();
+                File f = new File(url);
+                if (!f.exists()) {
+                    stopSelf();
+                    return;
+                }
+
+                try {
+                    mediaPlayer.setDataSource(f.getPath());
+                    mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                        @Override
+                        public void onPrepared(MediaPlayer mediaPlayer) {
+                            sendDurationToActivity(mediaPlayer.getDuration());
+                            createUpdateTimer();
+                        }
+                    });
+                    mediaPlayer.prepare();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                mediaPlayer.start();
+                mediaPlayer.setLooping(true);
+            }
+        };
 
     }
 
@@ -56,6 +200,9 @@ public class PlayerService extends Service {
         return new Runnable() {
             @Override
             public void run() {
+                if (mediaPlayer != null) {
+                    mediaPlayer.release();
+                }
                 mediaPlayer = new MediaPlayer();
                 mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
                 try {
@@ -65,6 +212,13 @@ public class PlayerService extends Service {
                 }
 
                 try {
+                    mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                        @Override
+                        public void onPrepared(MediaPlayer mediaPlayer) {
+                            sendDurationToActivity(mediaPlayer.getDuration());
+                            createUpdateTimer();
+                        }
+                    });
                     mediaPlayer.prepare();
                 } catch (IOException e) {
                     e.printStackTrace();
