@@ -2,6 +2,7 @@ package com.huynhquangnam.musicapp.service;
 
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -30,6 +31,7 @@ public class PlayerService extends Service {
     String name;
     UpdateTimerRunnable updateTimerRunnable;
     NotificationManager notificationManager;
+    BroadcastReceiver notificationReceiver;
 
     public PlayerService() {
     }
@@ -55,9 +57,39 @@ public class PlayerService extends Service {
     private void showNotification() {
         notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
+        notificationReceiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                switch (intent.getAction()) {
+                    case "changeStatus":
+                        if (mediaPlayer.isPlaying()) {
+                            mediaPlayer.pause();
+                            updateTimerRunnable.onPause();
+                        } else {
+                            mediaPlayer.start();
+                            updateTimerRunnable.onResume();
+                        }
+                        break;
+                    case "stopAudio":
+                        mediaPlayer.stop();
+                        updateTimerRunnable.onPause();
+                        notificationManager.cancelAll();
+                        break;
+                }
+            }
+        };
+
+        IntentFilter filter = new IntentFilter("changeStatus");
+        registerReceiver(notificationReceiver, filter);
+
+        PendingIntent changeStatusIntent = PendingIntent.getBroadcast(this, 0, new Intent("changeStatus"), PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent stopAudio = PendingIntent.getBroadcast(this, 0, new Intent("stopAudio"), PendingIntent.FLAG_UPDATE_CURRENT);
+
         Notification notification = new NotificationCompat.Builder(this)
                 .setContentTitle("Audio Player")
                 .setContentText(name)
+                .addAction(R.drawable.ic_download, "pause/resume", changeStatusIntent)
+                .addAction(R.drawable.ic_download, "stop audio", stopAudio)
                 .setSmallIcon(R.drawable.ic_download).build();
 
         startForeground(1, notification);
