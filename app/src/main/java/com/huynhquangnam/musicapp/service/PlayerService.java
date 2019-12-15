@@ -1,5 +1,7 @@
 package com.huynhquangnam.musicapp.service;
 
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -11,7 +13,10 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 
+import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
+import com.huynhquangnam.musicapp.R;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,6 +29,7 @@ public class PlayerService extends Service {
     String url;
     String name;
     UpdateTimerRunnable updateTimerRunnable;
+    NotificationManager notificationManager;
 
     public PlayerService() {
     }
@@ -38,12 +44,23 @@ public class PlayerService extends Service {
         url = intent.getStringExtra("songURL");
         name = intent.getStringExtra("songName");
         playAudio();
-
+        showNotification();
         IntentFilter filter = new IntentFilter("changeStatusMedia");
         filter.addAction("seekChange");
         LocalBroadcastManager.getInstance(this).registerReceiver(receiver(), filter);
 
         return super.onStartCommand(intent, flags, startId);
+    }
+
+    private void showNotification() {
+        notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+        Notification notification = new NotificationCompat.Builder(this)
+                .setContentTitle("Audio Player")
+                .setContentText(name)
+                .setSmallIcon(R.drawable.ic_download).build();
+
+        startForeground(1, notification);
     }
 
     private BroadcastReceiver receiver() {
