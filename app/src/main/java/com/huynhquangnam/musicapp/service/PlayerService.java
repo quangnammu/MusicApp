@@ -19,8 +19,13 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.huynhquangnam.musicapp.R;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
 
 public class PlayerService extends Service {
 
@@ -252,10 +257,37 @@ public class PlayerService extends Service {
                 if (mediaPlayer != null) {
                     mediaPlayer.release();
                 }
+                String path = getExternalCacheDir() + "/.Audio/";
+                File folder = new File(path);
+                if (!folder.exists()) {
+                    folder.mkdir();
+                }
+                File f = new File(getExternalCacheDir() + "/.Audio/" + String.valueOf(url.hashCode()) + ".mp3");
+                if (!f.exists()) {
+                    try {
+                        f.createNewFile();
+                        InputStream in = new URL(url).openStream();
+                        BufferedInputStream bis = new BufferedInputStream(in);
+                        FileOutputStream fos = new FileOutputStream(f);
+                        BufferedOutputStream bos = new BufferedOutputStream(fos);
+
+                        do {
+                            int byteOfFile = bis.read();
+                            if (byteOfFile == -1)
+                                break;
+
+                            bos.write(byteOfFile);
+                        }while (true);
+
+                        bos.close();
+                        in.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
                 mediaPlayer = new MediaPlayer();
-                mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
                 try {
-                    mediaPlayer.setDataSource(url);
+                    mediaPlayer.setDataSource(f.getPath());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -274,6 +306,7 @@ public class PlayerService extends Service {
                 }
 
                 mediaPlayer.start();
+                mediaPlayer.setLooping(true);
             }
         };
     }
