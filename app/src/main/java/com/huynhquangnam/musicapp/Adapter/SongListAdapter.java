@@ -13,10 +13,14 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.Toast;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.huynhquangnam.musicapp.Activity.PlayerActivity;
 import com.huynhquangnam.musicapp.Element.Song;
 import com.huynhquangnam.musicapp.R;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 import java.util.ArrayList;
 
@@ -30,7 +34,7 @@ public class SongListAdapter extends BaseAdapter implements AdapterView.OnItemCl
     public SongListAdapter(Context context) {
         this.context = context;
         this.listSong = new ArrayList<>();
-
+        ImageLoader.getInstance().init(ImageLoaderConfiguration.createDefault(context));
     }
 
     @Override
@@ -51,6 +55,15 @@ public class SongListAdapter extends BaseAdapter implements AdapterView.OnItemCl
     @Override
     public View getView(final int i, View view, ViewGroup viewGroup) {
         view = View.inflate(context, R.layout.song_list_item, null);
+
+        TextView songName = view.findViewById(R.id.song_name);
+        TextView songSinger = view.findViewById(R.id.song_singer);
+        ImageView songImage = view.findViewById(R.id.song_image);
+
+        ImageLoader.getInstance().displayImage(listSong.get(i).getSongImageURL(), songImage);
+        songName.setText(listSong.get(i).getSongName());
+        songSinger.setText(listSong.get(i).getSongSinger());
+
 
         Button downloadButton = view.findViewById(R.id.download_button);
 
@@ -85,6 +98,11 @@ public class SongListAdapter extends BaseAdapter implements AdapterView.OnItemCl
             }
         });
         return view;
+    }
+    public void addItem(Song song){
+        if( listSong != null && song != null){
+            listSong.add(song);
+        }
     }
 
     @Override
