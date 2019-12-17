@@ -9,8 +9,7 @@
         android:layout_height="70dp"
         android:src="@drawable/ic_note_song"
         android:layout_gravity="center_vertical"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
+        android:layout_margin="10dp"
         android:id="@+id/song_image"/>
     <LinearLayout
         android:layout_width="wrap_content"
