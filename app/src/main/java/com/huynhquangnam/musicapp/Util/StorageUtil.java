@@ -8,13 +8,14 @@ import android.provider.MediaStore;
 import android.webkit.MimeTypeMap;
 
 public class StorageUtil {
-    public static Cursor getMP3FileCursor(Context context ){
+    public static Cursor getMP3FileCursor(Context context) {
         ContentResolver contentResolver = context.getContentResolver();
-        Uri uri = MediaStore.Files.getContentUri("external");
-        String selection = MediaStore.Files.FileColumns.MIME_TYPE + "=?";
-        String mineType = MimeTypeMap.getSingleton().getMimeTypeFromExtension("mp3");
-        String[] selectionArgsMp3 = new String[] {mineType};
-        return contentResolver.query(uri, null, selection, selectionArgsMp3, null);
+        Uri uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+        String selection = MediaStore.Audio.Media.IS_MUSIC + " != 0";
+        String[] projection = {MediaStore.Audio.Media._ID,
+                MediaStore.Audio.Media.TITLE,
+                MediaStore.Audio.Media.ARTIST};
+        return contentResolver.query(uri, projection, selection, null, null);
 
     }
 }

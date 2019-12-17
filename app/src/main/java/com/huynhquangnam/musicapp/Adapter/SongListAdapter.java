@@ -64,6 +64,7 @@ public class SongListAdapter extends BaseAdapter implements AdapterView.OnItemCl
         songName.setText(listSong.get(i).getSongName());
         songSinger.setText(listSong.get(i).getSongSinger());
 
+/*
 
         Button downloadButton = view.findViewById(R.id.download_button);
 
@@ -97,10 +98,25 @@ public class SongListAdapter extends BaseAdapter implements AdapterView.OnItemCl
                 context.startActivity(intent);
             }
         });
+*/
+
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(SongListAdapter.this.context, PlayerActivity.class);
+                intent.putExtra("songSinger", listSong.get(i).getSongSinger());
+                intent.putExtra("songName", listSong.get(i).getSongName());
+                intent.putExtra("songURL", listSong.get(i).getSongURL());
+                Toast.makeText(context, listSong.get(i).getSongURL(), Toast.LENGTH_SHORT).show();
+                context.startActivity(intent);
+            }
+        });
+
         return view;
     }
-    public void addItem(Song song){
-        if( listSong != null && song != null){
+
+    public void addItem(Song song) {
+        if (listSong != null && song != null) {
             listSong.add(song);
         }
     }
