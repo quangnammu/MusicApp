@@ -48,6 +48,8 @@ public class ElementListAdapter extends BaseAdapter {
         icon.setImageResource(listElements.get(i).getIconResource());
         elementName.setText(listElements.get(i).getElementName());
         elementNumber.setText(String.valueOf(listElements.get(i).getNumber()));
+
+        view.setOnClickListener(listElements.get(i).getOnClickListener());
         return view;
     }
 }
