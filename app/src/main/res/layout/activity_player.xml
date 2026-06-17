@@ -4,94 +4,113 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="@drawable/bacground"
+    android:orientation="vertical"
     tools:context=".Activity.PlayerActivity">
+
     <LinearLayout
         android:layout_width="match_parent"
-        android:orientation="vertical"
+        android:layout_height="70dp"
         android:layout_marginTop="10dp"
-        android:layout_height="70dp">
+        android:orientation="vertical">
+
         <TextView
+            android:id="@+id/song_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Song Name"
+            android:layout_gravity="center_horizontal"
             android:fontFamily="sans-serif-condensed"
-            android:textSize="30sp"
+            android:text="Song Name"
             android:textColor="#ffffff"
-            android:textStyle="bold"
-            android:layout_gravity="center_horizontal"
-            android:id="@+id/song_name"/>
+            android:textSize="30sp"
+            android:textStyle="bold" />
+
         <TextView
+            android:id="@+id/song_singer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:textSize="20sp"
-            android:textColor="#ffffff"
-            android:textStyle="bold"
             android:fontFamily="sans-serif-condensed-medium"
             android:text="Song Singer"
-            android:id="@+id/song_singer"/>
+            android:textColor="#ffffff"
+            android:textSize="20sp"
+            android:textStyle="bold" />
     </LinearLayout>
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="fill_parent">
+
         <LinearLayout
+            android:id="@+id/player_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:layout_alignParentBottom="true"
             android:layout_marginBottom="20dp"
-            android:id="@+id/player_layout">
-            <RelativeLayout
+            android:orientation="vertical">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
                 <TextView
+                    android:id="@+id/time_start"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:textColor="#ffffff"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
-                    android:text="00:00"
-                    android:id="@+id/time_start"/>
-                <ProgressBar
-                    style="@android:style/Widget.ProgressBar.Horizontal"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_toLeftOf="@+id/time_start"
-                    android:layout_toRightOf="@+id/time_end"
-                    android:id="@+id/progress_bar"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
                     android:text="00:00"
                     android:textColor="#ffffff"
                     android:textSize="20sp"
                     android:textStyle="bold"
-                    android:id="@+id/time_end"/>
-            </RelativeLayout>
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <SeekBar
+                    android:id="@+id/progress_bar"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    app:layout_constraintEnd_toStartOf="@id/time_end"
+                    app:layout_constraintStart_toEndOf="@id/time_start"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="@id/time_start"/>
+
+                <TextView
+                    android:id="@+id/time_end"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="00:00"
+                    android:textColor="#ffffff"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
             <Button
+                android:id="@+id/status_button"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:layout_gravity="center_horizontal"
-                android:background="@drawable/ic_play"/>
+                android:background="@drawable/ic_play" />
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="fill_parent"
-            android:orientation="vertical"
-            android:layout_above="@+id/player_layout">
+            android:layout_above="@+id/player_layout"
+            android:orientation="vertical">
+
             <ImageView
                 android:layout_width="150dp"
                 android:layout_height="150dp"
                 android:layout_gravity="center"
-                android:background="@drawable/mp3"/>
+                android:background="@drawable/mp3" />
+
             <TextView
+                android:id="@+id/song_lyric"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:id="@+id/song_lyric"/>
+                android:layout_height="match_parent" />
         </LinearLayout>
     </RelativeLayout>
 

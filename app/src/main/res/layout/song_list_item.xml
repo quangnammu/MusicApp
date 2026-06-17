@@ -1,38 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="horizontal" android:layout_width="match_parent"
-    android:layout_height="90dp">
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="90dp"
+    android:padding="5dp"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <ImageView
+        android:id="@+id/song_image"
         android:layout_width="70dp"
         android:layout_height="70dp"
-        android:src="@drawable/ic_note_song"
         android:layout_gravity="center_vertical"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:id="@+id/song_image"/>
+        android:layout_margin="10dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:src="@drawable/ic_note_song" />
+
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
+        app:layout_constraintStart_toEndOf="@id/song_image"
+        app:layout_constraintTop_toTopOf="@id/song_image"
+        app:layout_constraintBottom_toBottomOf="@id/song_image"
         android:orientation="vertical">
+
         <TextView
+            android:id="@+id/song_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-condensed-light"
             android:text="Name Music"
             android:textSize="20sp"
-            android:textStyle="bold"
-            android:fontFamily="sans-serif-condensed-light"
-            android:id="@+id/song_name"
-            />
+            android:textStyle="bold" />
+
         <TextView
+            android:id="@+id/song_singer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Song Singer"
-            android:textSize="15sp"
             android:fontFamily="sans-serif-condensed"
-            android:id="@+id/song_singer"/>
+            android:text="Song Singer"
+            android:textSize="15sp" />
     </LinearLayout>
 
-</LinearLayout>
+    <Button
+        android:id="@+id/download_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        app:layout_constraintTop_toTopOf="@id/song_image"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="@id/song_image"
+        android:text="Download" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
