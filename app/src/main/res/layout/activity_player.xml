@@ -55,12 +55,12 @@
                     android:textStyle="bold"
                     android:text="00:00"
                     android:id="@+id/time_start"/>
-                <ProgressBar
-                    style="@android:style/Widget.ProgressBar.Horizontal"
+                <SeekBar
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:layout_toLeftOf="@+id/time_start"
                     android:layout_toRightOf="@+id/time_end"
+                    android:layout_centerVertical="true"
                     android:id="@+id/progress_bar"/>
                 <TextView
                     android:layout_width="wrap_content"
@@ -73,6 +73,7 @@
                     android:id="@+id/time_end"/>
             </RelativeLayout>
             <Button
+                android:id="@+id/status_button"
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:layout_gravity="center_horizontal"
